@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Soft Hoarders #12560 — FTC Robotics Team, Craiova</title>
+<meta name="description" content="Soft Hoarders is a student-run, non-profit FIRST Tech Challenge team from Craiova, Romania. Robot builds, school workshops and community outreach since 2016.">
+<meta name="theme-color" content="#04070a">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://www.soft-hoarders.com/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Soft Hoarders #12560 — it's not about wires, it's about connections">
+<meta property="og:description" content="A student-run FTC robotics team from Craiova, Romania. Nine seasons, one very crowded lab.">
+<meta property="og:url" content="https://www.soft-hoarders.com/">
+<meta property="og:image" content="assets/robot.webp">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="assets/logo.webp" type="image/webp">
+<link rel="apple-touch-icon" href="assets/logo.webp">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<!-- ══════════════ SVG FILTER DEFS ══════════════ -->
+<svg class="svg-defs" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="glass-distort" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.007 0.011" numOctaves="2" seed="9" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="grain-filter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <filter id="soft-glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="liquid-goo" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur"/>
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10" result="goo"/>
+      <feBlend in="SourceGraphic" in2="goo"/>
+    </filter>
+  </defs>
+</svg>
+
+<!-- ══════════════ AMBIENT BACKGROUND ══════════════ -->
+<div class="bg" aria-hidden="true">
+  <div class="bg__orb bg__orb--a"></div>
+  <div class="bg__orb bg__orb--b"></div>
+  <div class="bg__orb bg__orb--c"></div>
+  <div class="bg__grid"></div>
+  <div class="bg__grain"></div>
+  <canvas class="bg__motes" id="motes"></canvas>
+</div>
+
+<div class="scroll-progress" aria-hidden="true"><span id="scrollBar"></span></div>
+<div class="cursor" id="cursor" aria-hidden="true"><i></i></div>
+
+<a class="skip" href="#main" data-i18n="a11y.skip">Skip to content</a>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<header class="topbar" id="topbar">
+  <div class="topbar__inner glass glass--pill glass--lens" id="navGlass">
+    <a class="brand" href="#top" aria-label="Soft Hoarders — home">
+      <span class="brand__mark">
+        <img src="assets/logo.webp" alt="" width="34" height="34" decoding="async">
+      </span>
+      <span class="brand__text">
+        <span class="brand__name">Soft Hoarders</span>
+        <span class="brand__code">12560 · RO031</span>
+      </span>
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <a href="#about" data-i18n="nav.about">About</a>
+      <a href="#programs" data-i18n="nav.programs">Programs</a>
+      <a href="#record" data-i18n="nav.record">Record</a>
+      <a href="#results" data-i18n="nav.results">Results</a>
+      <a href="#team" data-i18n="nav.team">Team</a>
+    </nav>
+
+    <div class="topbar__right">
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" class="lang__btn is-active" data-lang="en">EN</button>
+        <button type="button" class="lang__btn" data-lang="ro">RO</button>
+      </div>
+      <a class="btn btn--solid btn--sm" href="#support" data-i18n="nav.support">Support</a>
+      <button class="burger" id="burger" aria-label="Menu" aria-expanded="false" aria-controls="drawer">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer glass" id="drawer" aria-label="Mobile menu" aria-hidden="true" inert>
+  <div class="drawer__head">
+    <span class="drawer__title" data-i18n="drawer.title">Menu</span>
+    <button class="drawer__close" id="drawerClose" aria-label="Close menu">&times;</button>
+  </div>
+  <nav class="drawer__nav" aria-label="Mobile">
+    <a href="#about" data-i18n="nav.about">About</a>
+    <a href="#programs" data-i18n="nav.programs">Programs</a>
+    <a href="#goals" data-i18n="nav.goals">How we work</a>
+    <a href="#record" data-i18n="nav.record">Record</a>
+    <a href="#results" data-i18n="nav.results">Results</a>
+    <a href="#team" data-i18n="nav.team">Team</a>
+    <a href="#support" data-i18n="nav.sponsors">Sponsors</a>
+    <a href="#contact" data-i18n="nav.contact">Contact</a>
+  </nav>
+  <a class="btn btn--solid" href="mailto:team@soft-hoarders.com?subject=STEM%20Outreach%20Request" data-i18n="drawer.cta">Invite us to an event</a>
+</aside>
+
+<main id="main">
+
+<!-- ══════════════ HERO ══════════════ -->
+<section class="hero" id="top">
+  <div class="wrap">
+
+    <p class="eyebrow reveal">
+      <i class="eyebrow__dot"></i>
+      <span data-i18n="hero.eyebrow">FIRST Tech Challenge · Team 12560</span>
+      <i class="eyebrow__sep"></i>
+      <span data-i18n="hero.location">Craiova, Romania</span>
+    </p>
+
+    <h1 class="hero__title" data-split="words">
+      <span data-i18n="hero.title1">It's not about wires.</span>
+      <span class="hero__title-em" data-i18n="hero.title2">It's about connections.</span>
+    </h1>
+
+    <div class="rule reveal" data-draw></div>
+
+    <div class="hero__grid">
+      <div class="hero__copy">
+        <p class="hero__lead reveal" data-delay="1" data-i18n="hero.subtitle">
+          A student-run, non-profit robotics team from Craiova. Nine seasons, one very crowded lab.
+        </p>
+
+        <dl class="readout reveal" data-delay="2">
+          <div><dt data-i18n="hero.team">Team</dt><dd>12560 <span>·</span> RO031</dd></div>
+          <div><dt data-i18n="hero.league">League</dt><dd>FTC</dd></div>
+          <div><dt data-i18n="hero.since">Since</dt><dd>2016</dd></div>
+          <div><dt data-i18n="hero.based">Based</dt><dd>Craiova</dd></div>
+        </dl>
+
+        <div class="hero__cta reveal" data-delay="3">
+          <a class="btn btn--solid" href="#programs" data-i18n="hero.cta1">See what we do</a>
+          <a class="btn btn--ghost" href="#contact" data-i18n="hero.cta2">Get in touch</a>
+        </div>
+
+        <p class="note reveal" data-delay="4">
+          <span class="note__label" data-i18n="hero.missionLabel">Mission</span>
+          <span data-i18n="hero.mission">Make STEM reachable for every kid in Craiova. Robot, workshop, or a stand at your school's fair — say hi.</span>
+        </p>
+      </div>
+
+      <div class="hero__plate" data-parallax="0.09">
+      <figure class="plate glass" data-tilt>
+        <span class="brk brk--tl"></span><span class="brk brk--tr"></span>
+        <span class="brk brk--bl"></span><span class="brk brk--br"></span>
+        <div class="plate__head">
+          <span class="plate__kicker" data-i18n="hero.robotKicker">Bench · 2025–26</span>
+          <span class="pill pill--live"><i></i><span data-i18n="hero.ready">Match ready</span></span>
+        </div>
+        <div class="plate__frame">
+          <div class="plate__scan"></div>
+          <img class="plate__img" src="assets/robot.webp" width="512" height="512" alt="Soft Hoarders competition robot, Shazam" fetchpriority="high" decoding="async">
+          <span class="plate__caption">Shazam</span>
+        </div>
+      </figure>
+
+      <div class="tele glass">
+        <div class="tele__row">
+          <span class="tele__k" data-i18n="hero.teleHub">Control Hub</span>
+          <span class="tele__v tele__v--ok" data-i18n="hero.teleOk">CONNECTED</span>
+        </div>
+        <div class="tele__bars" aria-hidden="true">
+          <span style="--h:34%"></span><span style="--h:58%"></span><span style="--h:82%"></span>
+          <span style="--h:47%"></span><span style="--h:91%"></span><span style="--h:63%"></span>
+          <span style="--h:38%"></span><span style="--h:72%"></span>
+        </div>
+        <div class="tele__chips">
+          <span class="chip" data-i18n="hero.chipAuto">Autonomous</span>
+          <span class="chip" data-i18n="hero.chipTele">TeleOp</span>
+          <span class="chip" data-i18n="hero.chipEnd">Endgame</span>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__foot wrap">
+    <span class="hero__scroll" data-i18n="hero.scroll">Scroll to explore</span>
+    <span class="hero__scrollline"><i></i></span>
+  </div>
+
+  <!-- ticker -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker__track">
+      <span>GRACIOUS PROFESSIONALISM</span><i>✳</i><span>COOPERTITION</span><i>✳</i><span>#12560</span><i>✳</i><span>RO031</span><i>✳</i><span>BUILT IN CRAIOVA</span><i>✳</i><span>EST. 2016</span><i>✳</i><span>STEM FOR EVERYONE</span><i>✳</i>
+      <span>GRACIOUS PROFESSIONALISM</span><i>✳</i><span>COOPERTITION</span><i>✳</i><span>#12560</span><i>✳</i><span>RO031</span><i>✳</i><span>BUILT IN CRAIOVA</span><i>✳</i><span>EST. 2016</span><i>✳</i><span>STEM FOR EVERYONE</span><i>✳</i>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 01 · ABOUT ══════════════ -->
+<section class="section" id="about">
+  <div class="wrap">
+    <header class="sechead">
+      <span class="sechead__num">01</span>
+      <div class="sechead__body">
+        <p class="sechead__label" data-i18n="about.label">Who we are</p>
+        <h2 class="sechead__title" data-split="lines" data-i18n="about.title">A team, not a company.</h2>
+      </div>
+    </header>
+
+    <div class="rule reveal" data-draw></div>
+
+    <div class="about">
+      <div class="about__lead">
+        <p class="about__text" data-split="words" data-i18n="about.lead">
+          Soft Hoarders — FTC 12560 — started in 2016 in a corner of a physics lab at „Frații Buzești” National College in Craiova. We are students first; the robot comes second.
+        </p>
+        <aside class="sticky-note reveal">
+          <span class="sticky-note__tape"></span>
+          <p data-i18n="about.note">We still argue about gearbox suppliers. Nine years in, we have not grown out of it.</p>
+        </aside>
+      </div>
+
+      <dl class="specs reveal">
+        <div><dt data-i18n="about.f1.l">Organisation</dt><dd data-i18n="about.f1.v">Non-profit FTC team #12560 · RO031</dd></div>
+        <div><dt data-i18n="about.f2.l">Based in</dt><dd data-i18n="about.f2.v">Craiova, Dolj County, Romania</dd></div>
+        <div><dt data-i18n="about.f3.l">Founded</dt><dd data-i18n="about.f3.v">2016 — nine straight national qualifications</dd></div>
+        <div><dt data-i18n="about.f4.l">Affiliation</dt><dd data-i18n="about.f4.v">FIRST Tech Challenge · Colegiul Național „Frații Buzești”</dd></div>
+        <div><dt data-i18n="about.f5.l">Write to us</dt><dd><a href="mailto:team@soft-hoarders.com"><span data-i18n="about.f5.v">team@soft-hoarders.com</span></a></dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 02 · PROGRAMS ══════════════ -->
+<section class="section" id="programs">
+  <div class="wrap">
+    <header class="sechead">
+      <span class="sechead__num">02</span>
+      <div class="sechead__body">
+        <p class="sechead__label" data-i18n="programs.label">What we run</p>
+        <h2 class="sechead__title" data-split="lines" data-i18n="programs.title">The robot is the excuse.</h2>
+      </div>
+    </header>
+
+    <div class="rule reveal" data-draw></div>
+
+    <p class="lede reveal" data-i18n="programs.lead">Past the competition robot we run a small STEM programme for schools, libraries and anyone curious enough to knock.</p>
+
+    <ol class="ledger">
+      <li class="ledger__row reveal" data-row>
+        <span class="ledger__n">01</span>
+        <div class="ledger__main">
+          <h3 class="ledger__title" data-i18n="programs.p1.title">Competition robot</h3>
+          <p class="ledger__body" data-i18n="programs.p1.body">Every season: design, machine, wire and program one fully autonomous, tele-operated robot.</p>
+          <ul class="ledger__tags">
+            <li data-i18n="programs.p1.l1">Mechanical design &amp; manufacturing</li>
+            <li data-i18n="programs.p1.l2">Autonomous software · Java / FTC SDK</li>
+            <li data-i18n="programs.p1.l3">CAD &amp; 3D-printed custom parts</li>
+          </ul>
+        </div>
+      </li>
+      <li class="ledger__row reveal" data-delay="1" data-row>
+        <span class="ledger__n">02</span>
+        <div class="ledger__main">
+          <h3 class="ledger__title" data-i18n="programs.p2.title">Workshops in schools</h3>
+          <p class="ledger__body" data-i18n="programs.p2.body">Hands-on sessions for primary classes: mechanisms, sensors, a little code.</p>
+        </div>
+      </li>
+      <li class="ledger__row reveal" data-delay="2" data-row>
+        <span class="ledger__n">03</span>
+        <div class="ledger__main">
+          <h3 class="ledger__title" data-i18n="programs.p3.title">Demos &amp; open days</h3>
+          <p class="ledger__body" data-i18n="programs.p3.body">We take the robot to fairs and libraries and explain what is under the cover.</p>
+        </div>
+      </li>
+      <li class="ledger__row reveal" data-delay="3" data-row>
+        <span class="ledger__n">04</span>
+        <div class="ledger__main">
+          <h3 class="ledger__title" data-i18n="programs.p4.title">Mentoring new members</h3>
+          <p class="ledger__body" data-i18n="programs.p4.body">Senior students run the onboarding: assembly, Java, CAD, and the parts nobody admits to.</p>
+        </div>
+      </li>
+      <li class="ledger__row reveal" data-delay="4" data-row>
+        <span class="ledger__n">05</span>
+        <div class="ledger__main">
+          <h3 class="ledger__title" data-i18n="programs.p5.title">Outreach, all year</h3>
+          <p class="ledger__body" data-i18n="programs.p5.body">Fifty-seven outreach events in one season, across Romania — mostly school halls.</p>
+        </div>
+      </li>
+    </ol>
+
+    <div class="callout reveal">
+      <p data-i18n="programs.cta">Want us at your school or event? We bring the robot and our own cables.</p>
+      <div class="callout__actions">
+        <a class="btn btn--solid" href="mailto:team@soft-hoarders.com?subject=STEM%20Outreach%20Request" data-i18n="programs.cta1">Invite us to an event</a>
+        <a class="btn btn--ghost" href="#support" data-i18n="programs.cta2">Become a sponsor</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 03 · GOALS ══════════════ -->
+<section class="section" id="goals">
+  <div class="wrap">
+    <header class="sechead">
+      <span class="sechead__num">03</span>
+      <div class="sechead__body">
+        <p class="sechead__label" data-i18n="goals.label">How we work</p>
+        <h2 class="sechead__title" data-split="lines" data-i18n="goals.title">Three rules we keep breaking</h2>
+      </div>
+    </header>
+
+    <div class="rule reveal" data-draw></div>
+
+    <p class="lede reveal" data-i18n="goals.lead">More tendencies than rules. Written on the lab wall in a student's handwriting — two of them have been crossed out.</p>
+
+    <div class="rules">
+      <article class="rule-card reveal">
+        <span class="rule-card__n">01</span>
+        <h3 class="rule-card__title" data-i18n="goals.g1.title">Self-improvement</h3>
+        <p class="rule-card__text" data-i18n="goals.g1.body">We rewrite the same subsystem twice on purpose. The first teaches you; the second survives a match.</p>
+      </article>
+      <article class="rule-card reveal" data-delay="1">
+        <span class="rule-card__n">02</span>
+        <h3 class="rule-card__title" data-i18n="goals.g2.title">Innovation in STEM</h3>
+        <p class="rule-card__text" data-i18n="goals.g2.body">Curiosity gets the vote. Our best parts started as a “what if we tried…” at 11 p.m.</p>
+      </article>
+      <article class="rule-card reveal" data-delay="2">
+        <span class="rule-card__n">03</span>
+        <h3 class="rule-card__title" data-i18n="goals.g3.title">Promoting STEM</h3>
+        <p class="rule-card__text" data-i18n="goals.g3.body">A workshop that reaches forty kids beats a trophy nobody sees.</p>
+      </article>
+    </div>
+  </div>
+
+  <!-- kinetic band -->
+  <div class="band" aria-hidden="true">
+    <div class="band__track">
+      <span>STEM FOR EVERYONE</span><i>✳</i><span>CRAIOVA</span><i>✳</i><span>#12560</span><i>✳</i><span>RO031</span><i>✳</i>
+      <span>STEM FOR EVERYONE</span><i>✳</i><span>CRAIOVA</span><i>✳</i><span>#12560</span><i>✳</i><span>RO031</span><i>✳</i>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 04 · RECORD ══════════════ -->
+<section class="section" id="record">
+  <div class="wrap">
+    <header class="sechead">
+      <span class="sechead__num">04</span>
+      <div class="sechead__body">
+        <p class="sechead__label" data-i18n="record.label">The record</p>
+        <h2 class="sechead__title" data-split="lines" data-i18n="record.title">What the shelf looks like</h2>
+      </div>
+    </header>
+
+    <div class="rule reveal" data-draw></div>
+
+    <div class="record">
+      <div class="record__stats">
+        <div class="stat">
+          <span class="stat__num" data-count="9">0</span>
+          <span class="stat__unit" data-i18n="record.u1">seasons</span>
+          <p class="stat__label" data-i18n="record.s1">National qualifications, every year since 2016.</p>
+        </div>
+        <div class="stat">
+          <span class="stat__num" data-count="57" data-suffix="+">0</span>
+          <span class="stat__unit" data-i18n="record.u2">outreach events</span>
+          <p class="stat__label" data-i18n="record.s2">In the 2024–25 season alone, across Romania.</p>
+        </div>
+        <div class="stat">
+          <span class="stat__num" data-count="3">0</span>
+          <span class="stat__unit" data-i18n="record.u3">premier events</span>
+          <p class="stat__label" data-i18n="record.s3">European Premier Event qualification, three times over.</p>
+        </div>
+      </div>
+
+      <div class="record__lists">
+        <div class="block">
+          <h3 class="block__title"><span data-i18n="record.label">The record</span></h3>
+          <ul class="awardlist">
+            <li class="awardlist__row reveal"><span data-i18n="record.a1">Inspire Award</span><em data-i18n="record.a1d">Regional · 2nd place</em></li>
+            <li class="awardlist__row reveal" data-delay="1"><span data-i18n="record.a2">Connect Award 1</span><em data-i18n="record.a2d">National · Romania</em></li>
+            <li class="awardlist__row reveal" data-delay="2"><span data-i18n="record.a3">Finalist Alliance Partner</span><em data-i18n="record.a3d">West Regional</em></li>
+            <li class="awardlist__row reveal" data-delay="3"><span data-i18n="record.a4">8th of 40</span><em data-i18n="record.a4d">Maryland Tech Invitational · 2023</em></li>
+            <li class="awardlist__row reveal" data-delay="4"><span data-i18n="record.a5">European Premier Event</span><em data-i18n="record.a5d">Qualified · 3rd time</em></li>
+          </ul>
+        </div>
+
+        <div class="block">
+          <h3 class="block__title"><span data-i18n="comp.label">Where we've been</span></h3>
+          <ol class="comp">
+            <li class="comp__row reveal">
+              <span class="comp__date" data-i18n="comp.i1.d">Mar 2026 · Bucharest</span>
+              <span class="comp__title" data-i18n="comp.i1.t">Romania Championship</span>
+              <p class="comp__body" data-i18n="comp.i1.b">Ninth straight qualification. The Vlăicu division ended on rank 35 — we took the lessons home.</p>
+            </li>
+            <li class="comp__row reveal" data-delay="1">
+              <span class="comp__date" data-i18n="comp.i2.d">Feb 2026 · Craiova</span>
+              <span class="comp__title" data-i18n="comp.i2.t">Romania South-West League</span>
+              <p class="comp__body" data-i18n="comp.i2.b">Home crowd. Five wins, rank 4 — and more parents in the hall than students.</p>
+            </li>
+            <li class="comp__row reveal" data-delay="2">
+              <span class="comp__date" data-i18n="comp.i3.d">Aug 2026 · Cluj-Napoca</span>
+              <span class="comp__title" data-i18n="comp.i3.t">Transylvania Tech Challenge 2</span>
+              <p class="comp__body" data-i18n="comp.i3.b">Rank 3, and an OPR above 170 — our best on a board so far.</p>
+            </li>
+            <li class="comp__row reveal" data-delay="3">
+              <span class="comp__date" data-i18n="comp.i4.d">Jul 2025 · Europe</span>
+              <span class="comp__title" data-i18n="comp.i4.t">European Premier Event</span>
+              <p class="comp__body" data-i18n="comp.i4.b">Third qualification at Premier level, against Europe's strongest teams.</p>
+            </li>
+            <li class="comp__row reveal" data-delay="4">
+              <span class="comp__date" data-i18n="comp.i5.d">2023 · Maryland, USA</span>
+              <span class="comp__title" data-i18n="comp.i5.t">Maryland Tech Invitational</span>
+              <p class="comp__body" data-i18n="comp.i5.b">Rank 8 of 40. The trip cost more than the robot, and was worth every leu.</p>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 05 · RESULTS ══════════════ -->
+<section class="section" id="results">
+  <div class="wrap">
+    <header class="sechead">
+      <span class="sechead__num">05</span>
+      <div class="sechead__body">
+        <p class="sechead__label" data-i18n="results.label">Live numbers</p>
+        <h2 class="sechead__title" data-split="lines" data-i18n="results.title">Straight from FTC Scout</h2>
+      </div>
+    </header>
+
+    <div class="rule reveal" data-draw></div>
+
+    <p class="lede reveal" data-i18n="results.lead">Pulled live from the FTC Scout API when you open this page.</p>
+
+    <div class="results" id="resultsGrid">
+      <div class="results__loading">
+        <span class="spinner"></span>
+        <span data-i18n="results.loading">Pulling match data…</span>
+      </div>
+    </div>
+
+    <p class="results__fallback" id="resultsFallback" hidden>
+      <span data-i18n="results.fail">Live data is unreachable right now.</span>
+      <a href="https://ftcscout.org/teams/12560" target="_blank" rel="noopener noreferrer" data-i18n="results.failLink">Open the team page on FTC Scout →</a>
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════ 06 · TEAM ══════════════ -->
+<section class="section" id="team">
+  <div class="wrap">
+    <header class="sechead">
+      <span class="sechead__num">06</span>
+      <div class="sechead__body">
+        <p class="sechead__label" data-i18n="team.label">The bench</p>
+        <h2 class="sechead__title" data-split="lines" data-i18n="team.title">Seventeen people, three departments, one very crowded lab</h2>
+      </div>
+    </header>
+
+    <div class="rule reveal" data-draw></div>
+
+    <p class="lede reveal" data-i18n="team.lead">Tap anyone to read what they actually do. The bios are theirs, written by them.</p>
+
+    <div class="dept">
+      <h3 class="dept__title"><span data-i18n="dept.hardware">Hardware</span><em data-i18n="dept.hardware.sub">7 people</em></h3>
+      <div class="roster">
+        <article class="member" data-bio="team.rares_lead" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Rares_A.webp" alt="Rares A" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Rares A</h4>
+          <p class="member__role" data-i18n="m.raresA">Hardware Lead · CAD</p>
+        </article>
+        <article class="member" data-bio="team.matei" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Matei.webp" alt="Matei" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Matei</h4>
+          <p class="member__role" data-i18n="m.matei">Hardware · QA</p>
+        </article>
+        <article class="member" data-bio="team.agatha" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Rares_T.webp" alt="Rares T" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Rares T</h4>
+          <p class="member__role" data-i18n="m.raresT">Hardware · CAD Design</p>
+        </article>
+        <article class="member" data-bio="team.theodor" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Mateo.webp" alt="Mateo" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Mateo</h4>
+          <p class="member__role" data-i18n="m.mateo">Hardware · QA</p>
+        </article>
+        <article class="member" data-bio="team.alexia" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Bia.webp" alt="Bia" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Bia</h4>
+          <p class="member__role" data-i18n="m.bia">Hardware · 3D Modelling</p>
+        </article>
+        <article class="member" data-bio="team.annia" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Vlad.webp" alt="Vlad" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Vlad</h4>
+          <p class="member__role" data-i18n="m.vlad">Hardware · Manufacturing</p>
+        </article>
+        <article class="member" data-bio="team.rares1" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Rares_M.webp" alt="Rares M" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Rares M</h4>
+          <p class="member__role" data-i18n="m.raresM">Hardware · Manufacturing</p>
+        </article>
+      </div>
+    </div>
+
+    <div class="dept">
+      <h3 class="dept__title"><span data-i18n="dept.nontech">Non-technical</span><em data-i18n="dept.nontech.sub">6 people</em></h3>
+      <div class="roster">
+        <article class="member" data-bio="team.alisia" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Alisia.webp" alt="Alisia" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Alisia</h4>
+          <p class="member__role" data-i18n="m.alisia">Captain · Outreach</p>
+        </article>
+        <article class="member" data-bio="team.ian" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Ian.webp" alt="Ian" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Ian</h4>
+          <p class="member__role" data-i18n="m.ian">Non-Tech Lead · Scrum Master</p>
+        </article>
+        <article class="member" data-bio="team.robert" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Robert.webp" alt="Robert" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Robert</h4>
+          <p class="member__role" data-i18n="m.robert">Non-Tech · Graphic Design</p>
+        </article>
+        <article class="member" data-bio="team.teo" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Teodora.webp" alt="Teodora" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Teodora</h4>
+          <p class="member__role" data-i18n="m.teodora">Non-Tech · Social Media</p>
+        </article>
+        <article class="member" data-bio="team.vlad1" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Livia.webp" alt="Livia" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Livia</h4>
+          <p class="member__role" data-i18n="m.livia">Non-Tech · Graphic Design</p>
+        </article>
+        <article class="member" data-bio="team.ecaterina" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Ale.webp" alt="Ale" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Ale</h4>
+          <p class="member__role" data-i18n="m.ale">Non-Tech · Outreach</p>
+        </article>
+      </div>
+    </div>
+
+    <div class="dept">
+      <h3 class="dept__title"><span data-i18n="dept.software">Software</span><em data-i18n="dept.software.sub">4 people</em></h3>
+      <div class="roster">
+        <article class="member" data-bio="team.candidatu" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Luca.webp" alt="Luca" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Luca</h4>
+          <p class="member__role" data-i18n="m.luca">Software Lead · PM</p>
+        </article>
+        <article class="member" data-bio="team.karina" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/David.webp" alt="David" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">David</h4>
+          <p class="member__role" data-i18n="m.david">Software · Developer</p>
+        </article>
+        <article class="member" data-bio="team.vladimir" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Vladimir.webp" alt="Vladimir" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Vladimir</h4>
+          <p class="member__role" data-i18n="m.vladimir">Software · Subsystems</p>
+        </article>
+        <article class="member" data-bio="team.vlad2" tabindex="0" data-cursor="grow">
+          <div class="member__shot"><img src="assets/team/Paul.webp" alt="Paul" width="120" height="120" loading="lazy" decoding="async"></div>
+          <h4 class="member__name">Paul</h4>
+          <p class="member__role" data-i18n="m.paul">Software · Autonomous</p>
+        </article>
+      </div>
+    </div>
+
+    <div class="mentors reveal">
+      <h3 class="mentors__title" data-i18n="team.mentors">Mentors</h3>
+      <p class="mentors__body" data-i18n="team.mentorsBody">Two maths and physics teachers keep us honest. Their words are on the lab wall, mostly about deadlines.</p>
+      <div class="mentors__quotes">
+        <blockquote data-i18n="team.mentorA">„I am surprised by the knowledge of my students. I am convinced that I will witness the first steps of a future generation of engineers.”</blockquote>
+        <blockquote data-i18n="team.mentorB">„I saw them as young people who sacrifice time for their dreams, and I chose to stay by their side.”</blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 07 · SUPPORT + CONTACT ══════════════ -->
+<section class="section" id="support">
+  <div class="wrap">
+    <header class="sechead">
+      <span class="sechead__num">07</span>
+      <div class="sechead__body">
+        <p class="sechead__label" data-i18n="support.label">Backers</p>
+        <h2 class="sechead__title" data-split="lines" data-i18n="support.title">The people who pay for our travel</h2>
+      </div>
+    </header>
+
+    <div class="rule reveal" data-draw></div>
+
+    <p class="lede reveal" data-i18n="support.lead">Parts, tools, travel and entry fees. None of them see our budget — all of them are why we can turn up.</p>
+
+    <div class="sponsors reveal">
+      <div class="sponsors__rail">
+        <div class="sponsors__track">
+          <a class="sponsor" href="https://www.facebook.com/QFORTRomania/" target="_blank" rel="noopener noreferrer"><img src="assets/sponsors/Qfort.png" alt="Qfort" loading="lazy"></a>
+          <a class="sponsor" href="https://www.biz-solutions.ro" target="_blank" rel="noopener noreferrer"><img src="assets/sponsors/biz.png" alt="Biz Solutions" loading="lazy"></a>
+          <a class="sponsor" href="https://caphyon.ro" target="_blank" rel="noopener noreferrer"><img src="assets/sponsors/caphyon.png" alt="Caphyon" loading="lazy"></a>
+          <a class="sponsor" href="https://www.hella.com/en/" target="_blank" rel="noopener noreferrer"><img src="assets/sponsors/hella.png" alt="Hella" loading="lazy"></a>
+          <a class="sponsor" href="https://www.netromsoftware.ro" target="_blank" rel="noopener noreferrer"><img src="assets/sponsors/netrom.png" alt="Netrom Software" loading="lazy"></a>
+          <a class="sponsor" href="https://www.stamford-avk.com" target="_blank" rel="noopener noreferrer"><img src="assets/sponsors/stamford.png" alt="Stamford AVK" loading="lazy"></a>
+          <a class="sponsor" href="https://www.sync.ro" target="_blank" rel="noopener noreferrer"><img src="assets/sponsors/syncro.png" alt="Syncro" loading="lazy"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout--center reveal">
+      <p data-i18n="support.cta">We take parts, tools, coffee and actual money. Write to us and we will send the details.</p>
+      <div class="callout__actions">
+        <a class="btn btn--solid" href="mailto:team@soft-hoarders.com?subject=Sponsorship" data-i18n="support.btn">Become a sponsor</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ CONTACT ══════════════ -->
+<section class="section section--tight" id="contact">
+  <div class="wrap">
+    <header class="sechead sechead--minor">
+      <span class="sechead__num">✳</span>
+      <div class="sechead__body">
+        <p class="sechead__label" data-i18n="contact.label">Say hello</p>
+        <h2 class="sechead__title" data-split="lines" data-i18n="contact.title">Come find us</h2>
+      </div>
+    </header>
+
+    <div class="rule reveal" data-draw></div>
+
+    <p class="lede reveal" data-i18n="contact.lead">Inside „Frații Buzești” National College, Craiova. Collaborate, invite us, sponsor us, or just talk robots.</p>
+
+    <div class="contact">
+      <div class="contact__map reveal" data-delay="1">
+        <svg viewBox="0 0 400 300" class="map" role="img" aria-label="Illustrative locator map of the college in Craiova">
+          <defs>
+            <linearGradient id="road" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#5c6b78" stop-opacity=".55"/>
+              <stop offset="1" stop-color="#8fa3b4" stop-opacity=".25"/>
+            </linearGradient>
+          </defs>
+          <g stroke="url(#road)" fill="none" stroke-linecap="round">
+            <path d="M-10 205 C 90 190, 150 150, 210 92 C 260 45, 330 30, 410 22" stroke-width="9"/>
+            <path d="M60 -10 C 74 70, 110 130, 168 176 C 236 230, 300 258, 410 270" stroke-width="7"/>
+            <path d="M-10 88 C 70 96, 140 104, 220 120 C 300 136, 350 150, 410 160" stroke-width="4"/>
+            <path d="M-10 250 C 80 244, 170 240, 260 232 C 330 226, 370 224, 410 220" stroke-width="4"/>
+            <path d="M186 -10 C 182 60, 186 120, 196 180 C 204 232, 208 264, 206 310" stroke-width="5"/>
+            <path d="M318 -10 C 312 60, 308 130, 314 190 C 318 240, 320 270, 322 310" stroke-width="3"/>
+          </g>
+          <g fill="#1b2731" opacity=".85">
+            <rect x="26" y="30" width="54" height="40" rx="6"/>
+            <rect x="96" y="26" width="60" height="36" rx="6"/>
+            <rect x="228" y="40" width="70" height="44" rx="6"/>
+            <rect x="344" y="52" width="52" height="36" rx="6"/>
+            <rect x="24" y="126" width="70" height="46" rx="6"/>
+            <rect x="118" y="130" width="46" height="38" rx="6"/>
+            <rect x="238" y="120" width="56" height="52" rx="6"/>
+            <rect x="340" y="176" width="56" height="40" rx="6"/>
+            <rect x="26" y="272" width="58" height="36" rx="6"/>
+            <rect x="228" y="264" width="62" height="42" rx="6"/>
+          </g>
+          <g class="map__pin">
+            <circle cx="186" cy="150" r="30" class="map__halo"/>
+            <circle cx="186" cy="150" r="13" class="map__dot"/>
+            <circle cx="186" cy="150" r="5" fill="#04120a"/>
+            <path d="M186 138 L186 118" stroke="#7bf0ac" stroke-width="1.5" stroke-dasharray="3 4" opacity=".8"/>
+          </g>
+          <text x="196" y="112" class="map__label">Colegiul „Frații Buzești”</text>
+          <text x="24" y="292" class="map__sub">Bulevardul Știrbei Vodă 5 · Craiova</text>
+        </svg>
+        <p class="map__note" data-i18n="contact.mapNote">Illustrative locator — not to scale.</p>
+        <a class="btn btn--ghost btn--sm" href="https://www.google.com/maps/search/?api=1&query=Colegiul+National+Fratii+Buzesti+Craiova" target="_blank" rel="noopener noreferrer" data-i18n="contact.mapBtn">Open in Maps ↗</a>
+      </div>
+
+      <div class="contact__info">
+        <div class="contact__block reveal">
+          <span class="contact__label" data-i18n="contact.addrLabel">Where</span>
+          <p class="contact__value" data-i18n="contact.addr">Colegiul Național „Frații Buzești”<br>Bulevardul Știrbei Vodă 5<br>200352 Craiova, Romania</p>
+        </div>
+
+        <div class="contact__block reveal" data-delay="1">
+          <span class="contact__label" data-i18n="contact.mailLabel">Write to us</span>
+          <p class="contact__value contact__mails">
+            <a href="mailto:team@soft-hoarders.com">team@soft-hoarders.com</a>
+            <a href="mailto:team@softhoarders.me">team@softhoarders.me</a>
+            <a href="mailto:s.hoarders@gmail.com">s.hoarders@gmail.com</a>
+          </p>
+        </div>
+
+        <div class="contact__block reveal" data-delay="2">
+          <span class="contact__label" data-i18n="contact.socialLabel">Follow</span>
+          <div class="socials">
+            <a class="social" href="https://www.instagram.com/soft.hoarders/" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a class="social" href="https://www.facebook.com/SoftHoarders" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a class="social" href="https://www.tiktok.com/@softhoarders" target="_blank" rel="noopener noreferrer">TikTok</a>
+            <a class="social" href="https://github.com/softhoarders" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ══════════════ SECTION INDEX RAIL ══════════════ -->
+<nav class="rail" id="rail" aria-label="Section index"></nav>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__top">
+      <div class="foot__mark">
+        <img src="assets/logo.webp" alt="" width="42" height="42" loading="lazy">
+        <div>
+          <strong>Soft Hoarders #12560</strong>
+          <span>RO031 · FIRST Tech Challenge · Craiova, RO</span>
+        </div>
+      </div>
+      <nav class="foot__nav" aria-label="Footer">
+        <a href="#about" data-i18n="nav.about">About</a>
+        <a href="#programs" data-i18n="nav.programs">Programs</a>
+        <a href="#record" data-i18n="nav.record">Record</a>
+        <a href="#results" data-i18n="nav.results">Results</a>
+        <a href="#team" data-i18n="nav.team">Team</a>
+        <a href="#support" data-i18n="nav.sponsors">Sponsors</a>
+        <a href="#contact" data-i18n="nav.contact">Contact</a>
+      </nav>
+    </div>
+
+    <p class="foot__mission" data-i18n="footer.mission">Soft Hoarders is a non-profit FIRST Tech Challenge team for STEM education and youth outreach in Craiova, Romania. #12560 · RO031 · est. 2016.</p>
+
+    <p class="foot__hand">still soldering, still caffeinated <span aria-hidden="true">✳</span></p>
+
+    <div class="foot__legal">
+      <span>© <span id="year">2026</span> Soft Hoarders #12560</span>
+      <span data-i18n="footer.rights">Made with too much coffee in Craiova.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════ TEAM BIO OVERLAY ══════════════ -->
+<div class="bio" id="bio" hidden>
+  <div class="bio__card glass" role="dialog" aria-modal="false" aria-labelledby="bioName">
+    <button class="bio__close" id="bioClose" aria-label="Close">&times;</button>
+    <div class="bio__head">
+      <img id="bioImg" alt="" width="64" height="64" decoding="async">
+      <div>
+        <h3 id="bioName"></h3>
+        <p id="bioRole"></p>
+      </div>
+    </div>
+    <p class="bio__text" id="bioText"></p>
+  </div>
+</div>
+
+<button class="totop" id="totop" aria-label="Back to top" hidden>
+  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
